@@ -8,7 +8,7 @@ import {
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import {
   PromptInput,
-  PromptInputButton,
+  // PromptInputButton,
   PromptInputModelSelect,
   PromptInputModelSelectContent,
   PromptInputModelSelectItem,
@@ -23,7 +23,7 @@ import { Actions, Action } from "@/components/ai-elements/actions";
 import { Fragment, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { Response } from "@/components/ai-elements/response";
-import { GlobeIcon, RefreshCcwIcon, CopyIcon } from "lucide-react";
+import { /* GlobeIcon, */ RefreshCcwIcon, CopyIcon } from "lucide-react";
 import {
   Source,
   Sources,
@@ -55,7 +55,7 @@ const models = [
 const ChatBotDemo = () => {
   const [input, setInput] = useState("");
   const [model, setModel] = useState<string>(models[0].value);
-  const [webSearch, setWebSearch] = useState(false);
+  // const [webSearch, setWebSearch] = useState(false);
   const { messages, sendMessage, status, regenerate } = useChat();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -66,7 +66,7 @@ const ChatBotDemo = () => {
         {
           body: {
             model: model,
-            webSearch: webSearch,
+            // webSearch: webSearch,
           },
         }
       );
@@ -169,13 +169,13 @@ const ChatBotDemo = () => {
           />
           <PromptInputToolbar>
             <PromptInputTools>
-              <PromptInputButton
+              {/* <PromptInputButton
                 variant={webSearch ? "default" : "ghost"}
                 onClick={() => setWebSearch(!webSearch)}
               >
                 <GlobeIcon size={16} />
                 <span>Search</span>
-              </PromptInputButton>
+              </PromptInputButton> */}
               <PromptInputModelSelect
                 onValueChange={(value) => {
                   setModel(value);
