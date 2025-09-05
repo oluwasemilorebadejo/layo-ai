@@ -8,7 +8,7 @@ import {
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import {
   PromptInput,
-  // PromptInputButton,
+  PromptInputButton,
   PromptInputModelSelect,
   PromptInputModelSelectContent,
   PromptInputModelSelectItem,
@@ -20,10 +20,15 @@ import {
   PromptInputTools,
 } from "@/components/ai-elements/prompt-input";
 import { Actions, Action } from "@/components/ai-elements/actions";
-import { Fragment, useState } from "react";
+import { Fragment, useState, useRef } from "react";
 import { useChat } from "@ai-sdk/react";
+import Image from "next/image";
 import { Response } from "@/components/ai-elements/response";
-import { /* GlobeIcon, */ RefreshCcwIcon, CopyIcon } from "lucide-react";
+import {
+  /* GlobeIcon, */ RefreshCcwIcon,
+  CopyIcon,
+  PaperclipIcon,
+} from "lucide-react";
 import {
   Source,
   Sources,
@@ -56,13 +61,18 @@ const ChatBotDemo = () => {
   const [input, setInput] = useState("");
   const [model, setModel] = useState<string>(models[0].value);
   // const [webSearch, setWebSearch] = useState(false);
+  const [files, setFiles] = useState<FileList | undefined>(undefined);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { messages, sendMessage, status, regenerate } = useChat();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (input.trim()) {
+    if (input.trim() || (files && files.length > 0)) {
       sendMessage(
-        { text: input },
+        {
+          text: input,
+          files: files,
+        },
         {
           body: {
             model: model,
@@ -71,6 +81,12 @@ const ChatBotDemo = () => {
         }
       );
       setInput("");
+      setFiles(undefined);
+
+      // Clear the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -136,6 +152,53 @@ const ChatBotDemo = () => {
                             )}
                         </Fragment>
                       );
+                    case "file":
+                      return (
+                        <Fragment key={`${message.id}-${i}`}>
+                          <Message from={message.role}>
+                            <MessageContent>
+                              <div className="mt-2">
+                                {part.mediaType?.startsWith("image/") ? (
+                                  <Image
+                                    src={part.url}
+                                    alt={part.filename || "Uploaded image"}
+                                    width={400}
+                                    height={300}
+                                    className="max-w-md rounded-lg"
+                                    style={{ objectFit: "contain" }}
+                                  />
+                                ) : part.mediaType === "application/pdf" ? (
+                                  <div className="border rounded-lg p-4 bg-gray-50">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <span>📄</span>
+                                      <span className="font-medium">
+                                        {part.filename || "PDF Document"}
+                                      </span>
+                                    </div>
+                                    <iframe
+                                      src={part.url}
+                                      className="w-full h-96 border rounded"
+                                      title={part.filename || "PDF"}
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="border rounded-lg p-4 bg-gray-50">
+                                    <div className="flex items-center gap-2">
+                                      <PaperclipIcon className="size-4" />
+                                      <span className="font-medium">
+                                        {part.filename || "File"}
+                                      </span>
+                                      <span className="text-sm text-gray-500">
+                                        ({part.mediaType})
+                                      </span>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </MessageContent>
+                          </Message>
+                        </Fragment>
+                      );
                     case "reasoning":
                       return (
                         <Reasoning
@@ -163,6 +226,33 @@ const ChatBotDemo = () => {
         </Conversation>
 
         <PromptInput onSubmit={handleSubmit} className="mt-4">
+          {/* File Preview */}
+          {files && files.length > 0 && (
+            <div className="mb-2 flex flex-wrap gap-2">
+              {Array.from(files).map((file, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-sm"
+                >
+                  <PaperclipIcon size={14} />
+                  <span>{file.name}</span>
+                  <button
+                    onClick={() => {
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = "";
+                      }
+                      setFiles(undefined);
+                    }}
+                    className="text-gray-500 hover:text-gray-700"
+                    type="button"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
           <PromptInputTextarea
             onChange={(e) => setInput(e.target.value)}
             value={input}
@@ -176,6 +266,38 @@ const ChatBotDemo = () => {
                 <GlobeIcon size={16} />
                 <span>Search</span>
               </PromptInputButton> */}
+
+              {/* File Upload Button */}
+              <div className="relative">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={(event) => {
+                    if (event.target.files) {
+                      setFiles(event.target.files);
+                    }
+                  }}
+                  accept="image/*,application/pdf,.txt,.md,.doc,.docx"
+                  multiple
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+                <PromptInputButton
+                  variant={files && files.length > 0 ? "default" : "ghost"}
+                  type="button"
+                  className="group transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-md hover:bg-primary/10 active:scale-95"
+                >
+                  <PaperclipIcon
+                    size={16}
+                    className="transition-transform duration-200 group-hover:rotate-12"
+                  />
+                  <span>
+                    {files && files.length > 0
+                      ? `${files.length} file${files.length > 1 ? "s" : ""}`
+                      : "Attach"}
+                  </span>
+                </PromptInputButton>
+              </div>
+
               <PromptInputModelSelect
                 onValueChange={(value) => {
                   setModel(value);
@@ -197,7 +319,10 @@ const ChatBotDemo = () => {
                 </PromptInputModelSelectContent>
               </PromptInputModelSelect>
             </PromptInputTools>
-            <PromptInputSubmit disabled={!input} status={status} />
+            <PromptInputSubmit
+              disabled={!input.trim() && (!files || files.length === 0)}
+              status={status}
+            />
           </PromptInputToolbar>
         </PromptInput>
       </div>
