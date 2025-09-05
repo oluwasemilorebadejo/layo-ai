@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Chat Bot",
+  title: " NLP Chat Bot",
   description: "",
 };
 
