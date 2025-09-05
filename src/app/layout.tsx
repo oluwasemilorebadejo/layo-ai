@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: " NLP Chat Bot",
-  description: "",
+  title: "Eco-friendly Corrosion Inhibition NLP Chat Bot",
+  description: "Eco-friendly Corrosion Inhibition NLP Chat Bot",
 };
 
 export default function RootLayout({

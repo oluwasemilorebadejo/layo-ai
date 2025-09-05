@@ -6,13 +6,11 @@ export const maxDuration = 30;
 export async function POST(req: Request) {
   const {
     messages,
-    model,
     webSearch,
-  }: { messages: UIMessage[]; model: string; webSearch: boolean } =
-    await req.json();
+  }: { messages: UIMessage[]; webSearch?: boolean } = await req.json();
 
   const result = streamText({
-    model: webSearch ? "perplexity/sonar" : model,
+    model: webSearch ? "perplexity/sonar" : "openai/gpt-4o",
     messages: convertToModelMessages(messages),
     system: `You are an expert materials scientist and environmental engineer specializing in eco-friendly corrosion inhibitors. Your role is to evaluate materials and determine if they qualify as eco-friendly corrosion inhibitors.
 

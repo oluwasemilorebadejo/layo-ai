@@ -9,11 +9,6 @@ import { Message, MessageContent } from "@/components/ai-elements/message";
 import {
   PromptInput,
   PromptInputButton,
-  PromptInputModelSelect,
-  PromptInputModelSelectContent,
-  PromptInputModelSelectItem,
-  PromptInputModelSelectTrigger,
-  PromptInputModelSelectValue,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputToolbar,
@@ -42,24 +37,8 @@ import {
 } from "@/components/ai-elements/reasoning";
 import { Loader } from "@/components/ai-elements/loader";
 
-const models = [
-  {
-    name: "GPT 4o",
-    value: "openai/gpt-4o",
-  },
-  {
-    name: "GPT 4.1",
-    value: "openai/gpt-4.1",
-  },
-  {
-    name: "Deepseek R1",
-    value: "deepseek/deepseek-r1",
-  },
-];
-
 const ChatBotDemo = () => {
   const [input, setInput] = useState("");
-  const [model, setModel] = useState<string>(models[0].value);
   // const [webSearch, setWebSearch] = useState(false);
   const [files, setFiles] = useState<FileList | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -68,18 +47,10 @@ const ChatBotDemo = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim() || (files && files.length > 0)) {
-      sendMessage(
-        {
-          text: input,
-          files: files,
-        },
-        {
-          body: {
-            model: model,
-            // webSearch: webSearch,
-          },
-        }
-      );
+      sendMessage({
+        text: input,
+        files: files,
+      });
       setInput("");
       setFiles(undefined);
 
@@ -95,6 +66,25 @@ const ChatBotDemo = () => {
       <div className="flex flex-col h-full">
         <Conversation className="h-full">
           <ConversationContent>
+            {/* Greeting message when no messages exist */}
+            {messages.length === 0 && (
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <div className="max-w-md mx-auto">
+                  <h1 className="text-3xl font-bold text-gray-800 mb-4">
+                    Eco-friendly Corrosion Inhibition NLP Chat Bot
+                  </h1>
+                  <p className="text-gray-600 text-lg mb-6">
+                    Welcome! I&apos;m here to help you with eco-friendly
+                    corrosion inhibition solutions. Ask me anything about green
+                    corrosion protection methods, sustainable materials, or
+                    environmentally safe inhibitors.
+                  </p>
+                  <div className="text-sm text-gray-500">
+                    Start by typing your question below ↓
+                  </div>
+                </div>
+              </div>
+            )}
             {messages.map((message) => (
               <div key={message.id}>
                 {message.role === "assistant" &&
@@ -297,27 +287,6 @@ const ChatBotDemo = () => {
                   </span>
                 </PromptInputButton>
               </div>
-
-              <PromptInputModelSelect
-                onValueChange={(value) => {
-                  setModel(value);
-                }}
-                value={model}
-              >
-                <PromptInputModelSelectTrigger>
-                  <PromptInputModelSelectValue />
-                </PromptInputModelSelectTrigger>
-                <PromptInputModelSelectContent>
-                  {models.map((model) => (
-                    <PromptInputModelSelectItem
-                      key={model.value}
-                      value={model.value}
-                    >
-                      {model.name}
-                    </PromptInputModelSelectItem>
-                  ))}
-                </PromptInputModelSelectContent>
-              </PromptInputModelSelect>
             </PromptInputTools>
             <PromptInputSubmit
               disabled={!input.trim() && (!files || files.length === 0)}
