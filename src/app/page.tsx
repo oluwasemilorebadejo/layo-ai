@@ -37,6 +37,13 @@ import {
 } from "@/components/ai-elements/reasoning";
 import { Loader } from "@/components/ai-elements/loader";
 
+// Type for source-url parts
+interface SourceUrlPart {
+  type: "source-url";
+  url: string;
+  title?: string;
+}
+
 const ChatBotDemo = () => {
   const [input, setInput] = useState("");
   // const [webSearch, setWebSearch] = useState(false);
@@ -104,8 +111,11 @@ const ChatBotDemo = () => {
                           <SourcesContent key={`${message.id}-${i}`}>
                             <Source
                               key={`${message.id}-${i}`}
-                              href={part.url}
-                              title={part.url}
+                              href={(part as SourceUrlPart).url}
+                              title={
+                                (part as SourceUrlPart).title ||
+                                (part as SourceUrlPart).url
+                              }
                             />
                           </SourcesContent>
                         ))}
